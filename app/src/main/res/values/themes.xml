@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.DiaryProxy" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/proxy_primary</item>
+        <item name="colorPrimaryVariant">@color/proxy_primary_dark</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorSecondary">@color/proxy_secondary</item>
+        <item name="colorOnSecondary">@android:color/white</item>
+        <item name="colorSurface">@color/proxy_surface</item>
+        <item name="colorOnSurface">@color/proxy_text_primary</item>
+        <item name="android:colorBackground">@color/proxy_bg</item>
+        <item name="android:textColorPrimary">@color/proxy_text_primary</item>
+        <item name="android:textColorSecondary">@color/proxy_text_secondary</item>
+        <item name="android:statusBarColor">@color/proxy_primary_dark</item>
+        <item name="android:navigationBarColor">@color/proxy_surface</item>
+        <item name="android:windowBackground">@color/proxy_bg</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+</resources>
