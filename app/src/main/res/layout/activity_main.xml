@@ -1,0 +1,901 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F7FB"
+    android:fillViewport="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="手机代理配置"
+                android:textColor="@color/proxy_text_primary"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="create by A-non"
+                android:textColor="#8F99A8"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="代理服务状态：未启动"
+            android:textColor="@color/proxy_text_secondary"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvRequestStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="最近聊天请求：最近 2 分钟内暂无入站聊天请求"
+            android:textColor="@color/proxy_text_secondary"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvEndpoint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="本地入口：http://localhost:8787/v1/chat/completions"
+            android:textColor="@color/proxy_text_secondary"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvActionStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="操作提示：就绪"
+            android:textColor="@color/proxy_text_secondary"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="#FFF4D6"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="后台运行提醒"
+                android:textColor="#8A5A00"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="部分手机需要开启手动管理后台，并允许后台活动，本代理和游戏都建议这样设置。不同品牌手机的省电和保活策略不同；如果出现后台延迟高、偶发断连、必须锁后台才稳定等情况，请同时检查手动管理、自启动、关联启动、电池优化和最近任务加锁。"
+                android:textColor="#8A5A00"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tvKeepAliveStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="当前保活状态：正在检测"
+                android:textColor="#8A5A00"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btnKeepAliveHelp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="直接申请忽略电池优化" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            android:elevation="2dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="连接设置"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="上游 url 无需填写接口后缀，聊天路径和模型路径在下方单独配置。这里允许先保存空值，但空值时无法启动代理、测试上游、获取模型列表或重发请求。"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="上游服务url" />
+            <EditText
+                android:id="@+id/etBaseUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="例如：https://api.deepseek.com/v1"
+                android:inputType="textUri" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="API Key" />
+            <EditText
+                android:id="@+id/etApiKey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableEnd="@drawable/ic_visibility_off_24"
+                android:drawablePadding="8dp"
+                android:hint="如需鉴权，填写 Bearer Token"
+                android:inputType="textPassword" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="模型名称" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/etModel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="例如：deepseek-chat" />
+
+                <Button
+                    android:id="@+id/btnFetchModels"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="@color/proxy_secondary"
+                    android:textColor="@android:color/white"
+                    android:text="获取模型列表" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="点击后会访问上游 models 接口，并把解析到的模型名列出来供你选择。"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="本地监听端口" />
+                    <EditText
+                        android:id="@+id/etPort"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="超时时间（毫秒）" />
+                    <EditText
+                        android:id="@+id/etTimeout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="上游代理类型" />
+            <Spinner
+                android:id="@+id/spUpstreamProxyType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="上游代理主机（可选）" />
+                    <EditText
+                        android:id="@+id/etUpstreamProxyHost"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="例如：127.0.0.1"
+                        android:inputType="textUri" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="上游代理端口（可选）" />
+                    <EditText
+                        android:id="@+id/etUpstreamProxyPort"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="例如：10808"
+                        android:inputType="number" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="这里控制的是“本代理转发到上游接口”时是否再经过一个代理。直连表示不走额外代理；"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            android:elevation="2dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="路由与协议字段"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="本地监听路径和上游转发路径可以分别配置，多路径字段一行一个。"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="妹居请求代理的聊天路径后缀" />
+            <EditText
+                android:id="@+id/etListenChatPaths"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:singleLine="false" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="妹居请求代理的模型路径后缀" />
+            <EditText
+                android:id="@+id/etListenModelsPaths"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:singleLine="false" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="云端请求聊天路径后缀" />
+            <EditText
+                android:id="@+id/etUpstreamChatPath"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="云端请求模型路径后缀" />
+            <EditText
+                android:id="@+id/etUpstreamModelsPath"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="上游接口数据格式"
+                android:textStyle="bold" />
+            <Spinner
+                android:id="@+id/spAdapterPreset"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="DeepSeek 和 OpenAI Chat 在本代理当前支持的非流式聊天格式里基本兼容，主要差别通常只是 url、模型名和路径后缀。大多数自建服务、中转服务、OpenAI 兼容接口，通常选“OpenAI Chat 兼容”即可。Claude 如果走的是 OpenAI 兼容入口，也通常选这个；只有在使用 Claude 原生 Messages API 这类字段结构明显不同的接口时，才需要切到“高级：自定义字段映射”。"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="OpenAI / DeepSeek 兼容用于 OpenAI Chat Completions、DeepSeek 和大多数兼容中转；Claude Messages 用于原生 /v1/messages；OpenAI Responses 用于原生 /v1/responses；Gemini GenerateContent 常见路径是 /v1beta/models/${model}:generateContent；都不符合时再用自定义字段映射。"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:id="@+id/layoutGenericFields"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="高级：自定义字段映射"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="只在上游不是标准 OpenAI/DeepSeek 风格时才需要填写。比如 Claude 原生 Messages API 常见的是 /v1/messages、content 数组，以及额外版本头；这种原生结构如果不是走它的 OpenAI 兼容入口，就需要在这里告诉代理：消息数组、模型名、max_tokens、响应正文分别藏在 JSON 的哪里。反过来，如果你接的是 Claude 的 OpenAI 兼容网关或中转，一般仍然选“OpenAI Chat 兼容”就够了。"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="请求消息数组路径" />
+                <EditText
+                    android:id="@+id/etRequestMessagesPath"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="请求最后一条用户文本路径" />
+                <EditText
+                    android:id="@+id/etRequestUserTextPath"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="请求模型字段路径" />
+                <EditText
+                    android:id="@+id/etRequestModelPath"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="请求 max_tokens 路径" />
+                <EditText
+                    android:id="@+id/etRequestMaxTokensPath"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="响应正文路径" />
+                <EditText
+                    android:id="@+id/etResponseTextPath"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            android:elevation="2dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <Button
+                android:id="@+id/btnToggleRules"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/proxy_primary_soft"
+                android:textColor="@color/proxy_text_primary"
+                android:text="展开日记识别规则" />
+
+            <TextView
+                android:id="@+id/tvRulesStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="日记识别：已开启"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:id="@+id/layoutMatchingRules"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <CheckBox
+                    android:id="@+id/cbDetectionEnabled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="启用日记识别" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="识别严格程度" />
+                <Spinner
+                    android:id="@+id/spStrictness"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="最小文本长度" />
+                        <EditText
+                            android:id="@+id/etMinLength"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="最少对话行数" />
+                        <EditText
+                            android:id="@+id/etMinLines"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="前缀规则（一行一个）" />
+                <EditText
+                    android:id="@+id/etPrefixes"
+                    android:layout_width="match_parent"
+                    android:layout_height="72dp"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"
+                    android:singleLine="false" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="关键词规则（一行一个）" />
+                <EditText
+                    android:id="@+id/etKeywords"
+                    android:layout_width="match_parent"
+                    android:layout_height="72dp"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"
+                    android:singleLine="false" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="普通日记提示词模板" />
+            <EditText
+                android:id="@+id/etNormalTemplate"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:singleLine="false" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="节日日记提示词模板" />
+            <EditText
+                android:id="@+id/etHolidayTemplate"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:singleLine="false" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="可用变量：${genderTerm}、${occasion}、${theme}。其中 ${genderTerm} 在普通日记和节日日记里都会尝试解析；若成功替换，日志会显示 templateVars=genderTerm=...。若模板引用了变量，但原请求里没解析到真实值，本次会跳过改写并记录日志，避免覆盖原变量语义。"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="日记请求的 max_tokens" />
+            <EditText
+                android:id="@+id/etOverrideMaxTokens"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="硬截断最大字符数" />
+            <EditText
+                android:id="@+id/etMaxChars"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+
+            <CheckBox
+                android:id="@+id/cbDryRun"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="仅做命中判断和日志记录，不真正改写请求，用于调试" />
+
+            <CheckBox
+                android:id="@+id/cbTruncate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="对日记响应启用硬截断(超过字数强制截断)" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            android:elevation="2dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="普通聊天人设覆盖"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="仅对普通聊天生效；故事、TRPG、GM、日记会跳过。目前只支持与原人设卡结构兼容的 JSON。"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cbPersonaEnabled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="启用普通聊天人设覆盖" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="当前人设方案" />
+            <Spinner
+                android:id="@+id/spPersonaProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnPersonaAdd"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="新增方案" />
+
+                <Button
+                    android:id="@+id/btnPersonaCopy"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="复制当前" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnPersonaRename"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="重命名" />
+
+                <Button
+                    android:id="@+id/btnPersonaDelete"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="删除方案" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="每个方案都会独立保存 5 档好感度 JSON；运行时只会使用当前选中的方案。"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="当前编辑档位" />
+            <Spinner
+                android:id="@+id/spPersonaTier"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="人设 JSON 编辑器" />
+            <EditText
+                android:id="@+id/etPersonaJson"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:singleLine="false"
+                android:typeface="monospace" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            android:elevation="2dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="本地记录与重发"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="记录会保存在应用专用目录。最近一次日记请求也会缓存到本地，方便上游失败后在应用里直接重发。聊天/日记记录都会按天追加写入 txt 文件。"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cbSaveNormalHistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="自动保存日常聊天记录" />
+
+            <CheckBox
+                android:id="@+id/cbSaveDiaryHistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="自动保存日记记录" />
+
+            <CheckBox
+                android:id="@+id/cbDebugPromptDump"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="导出改写后实际发送的提示词调试文件" />
+
+            <CheckBox
+                android:id="@+id/cbStripRestrictionLine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="清除 system 里的【限制】行" />
+
+            <CheckBox
+                android:id="@+id/cbStripSystemTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="清除 system 里的系统时间标记" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="开启后，会把每次改写完成后、真正发往上游的最终请求体单独写入应用私有目录 debug 文件夹，仅用于排查，不会把正文显示到运行日志。下方两个开关只处理 system 提示词，不改用户正文；系统时间清洗只匹配“当前时间... / 【2026年4月11日 17:36】 / 【日记书写时间为...】”这类固定格式。"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tvHistoryPath"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="保存位置："
+                android:textColor="@color/proxy_text_secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/proxy_primary"
+                android:textColor="@android:color/white"
+                android:text="保存配置" />
+
+            <Button
+                android:id="@+id/btnStartStop"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:backgroundTint="@color/proxy_secondary"
+                android:textColor="@android:color/white"
+                android:text="启动代理" />
+
+            <Button
+                android:id="@+id/btnTest"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:backgroundTint="@color/proxy_primary_dark"
+                android:textColor="@android:color/white"
+                android:text="测试上游" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnClearLog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/proxy_primary_soft"
+                android:textColor="@color/proxy_text_primary"
+                android:text="清空日志" />
+
+            <Button
+                android:id="@+id/btnCopyLog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:backgroundTint="@color/proxy_primary_soft"
+                android:textColor="@color/proxy_text_primary"
+                android:text="复制日志" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnReplayLastRequest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:backgroundTint="@color/proxy_primary_soft"
+            android:textColor="@color/proxy_text_primary"
+            android:text="重发上一次日记请求" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="运行日志"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvLogs"
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:layout_marginBottom="12dp"
+            android:background="@color/proxy_log_bg"
+            android:gravity="top|start"
+            android:padding="8dp"
+            android:textColor="#B9E7FF"
+            android:textIsSelectable="true"
+            android:textSize="12sp"
+            android:typeface="monospace" />
+
+    </LinearLayout>
+</ScrollView>

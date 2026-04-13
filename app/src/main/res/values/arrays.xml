@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="upstream_proxy_type_items">
+        <item>direct</item>
+        <item>http</item>
+        <item>socks5</item>
+    </string-array>
+
+    <string-array name="upstream_proxy_type_labels">
+        <item>直连</item>
+        <item>HTTP 代理</item>
+        <item>SOCKS5 代理</item>
+    </string-array>
+
+    <string-array name="strictness_items">
+        <item>strict</item>
+        <item>balanced</item>
+        <item>relaxed</item>
+    </string-array>
+
+    <string-array name="strictness_labels">
+        <item>严格</item>
+        <item>平衡</item>
+        <item>宽松</item>
+    </string-array>
+
+    <string-array name="adapter_preset_items">
+        <item>openai_compatible</item>
+        <item>claude_messages</item>
+        <item>openai_responses</item>
+        <item>gemini_generate_content</item>
+        <item>generic_custom</item>
+    </string-array>
+
+    <string-array name="adapter_preset_labels">
+        <item>OpenAI / DeepSeek 兼容</item>
+        <item>Claude Messages 原生</item>
+        <item>OpenAI Responses 原生</item>
+        <item>Gemini GenerateContent 原生</item>
+        <item>高级：自定义字段映射</item>
+    </string-array>
+
+    <string-array name="persona_tier_items">
+        <item>sister-null</item>
+        <item>sister-verylow</item>
+        <item>sister-low</item>
+        <item>sister-medium</item>
+        <item>sister-high</item>
+    </string-array>
+
+    <string-array name="persona_tier_labels">
+        <item>零好感（sister-null）</item>
+        <item>极低好感（sister-verylow）</item>
+        <item>低好感（sister-low）</item>
+        <item>中好感（sister-medium）</item>
+        <item>高好感（sister-high）</item>
+    </string-array>
+</resources>

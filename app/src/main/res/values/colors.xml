@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="proxy_bg">#EEF3F8</color>
+    <color name="proxy_surface">#FFFFFF</color>
+    <color name="proxy_primary">#2563EB</color>
+    <color name="proxy_primary_dark">#1D4ED8</color>
+    <color name="proxy_primary_soft">#DCE9FF</color>
+    <color name="proxy_secondary">#0F766E</color>
+    <color name="proxy_text_primary">#172033</color>
+    <color name="proxy_text_secondary">#5B6472</color>
+    <color name="proxy_outline">#D6DFEA</color>
+    <color name="proxy_log_bg">#0F172A</color>
+</resources>

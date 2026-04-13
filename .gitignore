@@ -1,0 +1,16 @@
+.gradle/
+.idea/
+build/
+app/build/
+captures/
+local.properties
+*.iml
+*.apk
+*.ap_
+*.keystore
+*.jks
+*.p12
+*.log
+
+# Local screenshots or notes that may contain private data
+mumu_screen_api_key.png
