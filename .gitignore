@@ -1,16 +1,77 @@
+# ---- Android / Gradle build outputs ----
 .gradle/
-.idea/
 build/
 app/build/
 captures/
-local.properties
-*.iml
 *.apk
+*.aab
 *.ap_
+*.dex
+*.hprof
+release/
+proguard/
+
+# ---- Android signing material (NEVER commit) ----
 *.keystore
 *.jks
 *.p12
-*.log
+keystore.properties
 
-# Local screenshots or notes that may contain private data
-mumu_screen_api_key.png
+# ---- IDE / editor ----
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+*.orig
+*.bak
+
+# ---- Local config (machine-specific) ----
+local.properties
+
+# ---- Logs / JVM crash dumps ----
+*.log
+hs_err_pid*
+replay_pid*
+
+# ---- OS metadata ----
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# ---- Cloudflare Wrangler (local cache, dev secrets, deploy artifacts) ----
+.wrangler/
+cloudflare/.wrangler/
+.dev.vars
+cloudflare/.dev.vars
+# Local feedback/session transcripts (may contain tokens, IPs, PII)
+cloudflare/反馈.txt
+cloudflare/feedback-session-*.txt
+
+# ---- Python tooling (tools/, tools/reverse/) ----
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# ---- Node tooling (if used by wrangler/etc) ----
+node_modules/
+npm-debug.log*
+yarn-error.log
+
+# ---- Git worktrees scratch space ----
+.worktrees/
+
+# ---- Repo scope: GitHub publishes Android source only ----
+# Cloudflare worker, docs, RE tools, release notes, changelogs are kept locally
+# but excluded from the public source repo.
+/cloudflare/
+/docs/
+/tools/
+/发行说明/
+/更新日志.md
+/审阅.txt
+/逆向说明.txt

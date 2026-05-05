@@ -89,11 +89,11 @@ final class PersonaSupport {
             return PersonaOverlayResult.skip("persona_missing_fields:" + detection.tier);
         }
 
-        String updatedScenario = replaceOnce(sections.scenarioBody, detection.currentCard.scenario, replacement.scenario);
+        String updatedScenario = replaceStructuredSection(sections.scenarioBody, detection.currentCard.scenario, replacement.scenario);
         if (updatedScenario == null) {
             return PersonaOverlayResult.skip("scenario_boundary_failed:" + detection.tier);
         }
-        String updatedNotes = replaceOnce(sections.creatorBody, detection.currentCard.creatorNotes, replacement.creatorNotes);
+        String updatedNotes = replaceStructuredSection(sections.creatorBody, detection.currentCard.creatorNotes, replacement.creatorNotes);
         if (updatedNotes == null) {
             return PersonaOverlayResult.skip("creator_notes_boundary_failed:" + detection.tier);
         }
@@ -130,6 +130,7 @@ final class PersonaSupport {
         String currentDescription = normalize(sections.description);
         String currentPersonality = normalize(sections.personalityBody);
         Map<String, String> currentDescriptionFields = parseBracketFields(sections.description);
+        Detection structureDetection = detectTierByStructure(sections, cards);
 
         Detection best = Detection.none("tier_not_identified");
         for (Map.Entry<String, PersonaCard> entry : cards.entrySet()) {
@@ -157,6 +158,15 @@ final class PersonaSupport {
         }
         if (best.score >= 6) {
             return best;
+        }
+        if (structureDetection.matched()) {
+            return structureDetection;
+        }
+        if (!TextUtils.isEmpty(structureDetection.reason)) {
+            if (!structureDetection.reason.startsWith("structure_")) {
+                return Detection.none(structureDetection.reason);
+            }
+            return Detection.none(best.reason + "|" + structureDetection.reason);
         }
         return Detection.none(best.reason);
     }
@@ -241,6 +251,47 @@ final class PersonaSupport {
         return fields;
     }
 
+    private static Detection detectTierByStructure(PromptSections sections, Map<String, PersonaCard> cards) {
+        Map<String, String> currentDescriptionFields = parseBracketFields(sections.description);
+        String descriptionSignature = buildFieldKeySignature(currentDescriptionFields);
+        if (TextUtils.isEmpty(descriptionSignature)) {
+            return Detection.none("structure_fields_empty");
+        }
+
+        List<Detection> descriptionMatches = new ArrayList<>();
+        for (Map.Entry<String, PersonaCard> entry : cards.entrySet()) {
+            Map<String, String> candidateFields = parseBracketFields(entry.getValue().description);
+            if (TextUtils.equals(descriptionSignature, buildFieldKeySignature(candidateFields))) {
+                descriptionMatches.add(new Detection(entry.getKey(), entry.getValue(), 6, "matched_structure_desc"));
+            }
+        }
+        if (descriptionMatches.isEmpty()) {
+            return Detection.none("structure_desc_signature_miss");
+        }
+        if (descriptionMatches.size() == 1) {
+            return descriptionMatches.get(0);
+        }
+
+        String creatorSignature = buildCreatorInstructionSignature(sections.creatorBody);
+        if (!TextUtils.isEmpty(creatorSignature)) {
+            List<Detection> creatorMatches = new ArrayList<>();
+            for (Detection candidate : descriptionMatches) {
+                String candidateSignature = buildCreatorInstructionSignature(candidate.currentCard.creatorNotes);
+                if (TextUtils.equals(creatorSignature, candidateSignature)) {
+                    creatorMatches.add(new Detection(candidate.tier, candidate.currentCard, 6, "matched_structure_creator"));
+                }
+            }
+            if (creatorMatches.size() == 1) {
+                return creatorMatches.get(0);
+            }
+            if (!creatorMatches.isEmpty()) {
+                descriptionMatches = creatorMatches;
+            }
+        }
+
+        return Detection.none("structure_ambiguous:" + joinCandidateTiers(descriptionMatches));
+    }
+
     private static int scoreDescriptionFieldMatch(Map<String, String> currentFields, Map<String, String> candidateFields) {
         if (currentFields.isEmpty() || candidateFields.isEmpty()) {
             return 0;
@@ -323,16 +374,114 @@ final class PersonaSupport {
 
     private static boolean looksLikeExcludedMode(String text) {
         String normalized = normalize(text);
+        // v1.5.5+：PS-2 — 旧实现 contains("gm") 会误伤 gmail / gms 等普通词。
+        // normalize 已删空格，没有传统词边界可用；改成更明确的"gm:" / "gm,"  / "gm。"
+        // 等以及带前后语境的中文短语，确保只在指 game master 时命中。
+        boolean gmContextMatched = false;
+        // 1) 若 normalized 含 "gm" 后跟标点（":,，。/）"），认为是显式声明的 gm 角色
+        if (normalized.matches(".*gm[\\,\\:\\.\\;\\)\\]\\}\\u3001\\u3002\\uFF0C\\uFF1A].*")) {
+            gmContextMatched = true;
+        }
+        // 2) 若 normalized 含中文语境短语，例如 "作为gm"、"扮演gm"、"由gm" 等
+        if (!gmContextMatched && (normalized.contains("作为gm")
+                || normalized.contains("扮演gm")
+                || normalized.contains("由gm")
+                || normalized.contains("是gm")
+                || normalized.contains("gm角色")
+                || normalized.contains("gm设定")
+                || normalized.contains("gm视角")
+                || normalized.contains("gm模式"))) {
+            gmContextMatched = true;
+        }
         return normalized.contains("trpg")
-                || normalized.contains("gm")
+                || gmContextMatched
                 || normalized.contains("gamemaster")
                 || normalized.contains("故事模式")
                 || normalized.contains("剧情模式")
                 || normalized.contains("旁白")
-                || normalized.contains("主持人")
+                || normalized.contains("海龟汤裁判")
+                || (normalized.contains("裁判") && normalized.contains("verdict") && normalized.contains("hitfacts"))
                 || normalized.contains("预制回复")
                 || normalized.contains("reply1")
                 || normalized.contains("reply2");
+    }
+
+    private static String buildFieldKeySignature(Map<String, String> fields) {
+        if (fields == null || fields.isEmpty()) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        for (String key : fields.keySet()) {
+            if (TextUtils.isEmpty(key)) {
+                continue;
+            }
+            if (builder.length() > 0) {
+                builder.append('|');
+            }
+            builder.append(key);
+        }
+        return builder.toString();
+    }
+
+    private static String buildCreatorInstructionSignature(String text) {
+        if (TextUtils.isEmpty(text)) {
+            return "";
+        }
+        LinkedHashSet<String> tags = new LinkedHashSet<>();
+        Matcher matcher = CREATOR_TAG_PATTERN.matcher(text);
+        while (matcher.find()) {
+            String tag = normalize(matcher.group(1));
+            if (!TextUtils.isEmpty(tag)) {
+                tags.add(tag);
+            }
+        }
+        if (tags.isEmpty()) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        for (String tag : tags) {
+            if (builder.length() > 0) {
+                builder.append('|');
+            }
+            builder.append(tag);
+        }
+        return builder.toString();
+    }
+
+    private static String joinCandidateTiers(List<Detection> detections) {
+        if (detections == null || detections.isEmpty()) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        for (Detection detection : detections) {
+            if (detection == null || TextUtils.isEmpty(detection.tier)) {
+                continue;
+            }
+            if (builder.length() > 0) {
+                builder.append(',');
+            }
+            builder.append(detection.tier);
+        }
+        return builder.toString();
+    }
+
+    private static String replaceStructuredSection(String source, String target, String replacement) {
+        String exactReplace = replaceOnce(source, target, replacement);
+        if (exactReplace != null) {
+            return exactReplace;
+        }
+        if (!isSafeWholeSectionReplace(source)) {
+            return null;
+        }
+        return safe(replacement);
+    }
+
+    private static boolean isSafeWholeSectionReplace(String source) {
+        if (TextUtils.isEmpty(source)) {
+            return false;
+        }
+        String raw = source.replace("\r\n", "\n").replace('\r', '\n');
+        return !raw.contains("|") && !RUNTIME_MARKER_PATTERN.matcher(raw).find();
     }
 
     private static String replaceOnce(String source, String target, String replacement) {
@@ -365,10 +514,20 @@ final class PersonaSupport {
         return text == null ? "" : text.trim();
     }
 
-    private static final Pattern STORY_DESCRIPTION_PATTERN = Pattern.compile("(?m)^\\s*(描述[：:])([^\\r\\n]+)");
-    private static final Pattern STORY_PERSONALITY_PATTERN = Pattern.compile("(?m)^\\s*(性格[：:])([^\\r\\n]+)");
+    // v1.5.5+：PS-3 — 旧版 `[^\r\n]+` 把 description / personality 限制在单行，
+    // 用户写多行人设时只匹配首行导致 tier 命中失败。改成贪婪到下一段标记前的非贪婪匹配：
+    // description 一直读到下一个"性格："出现前，personality 类似（用 `\\Z` 兜底匹配到字符串末）。
+    // group(2) 仍然是冒号后面的正文。
+    private static final Pattern STORY_DESCRIPTION_PATTERN = Pattern.compile(
+            "(?ms)^\\s*(描述[：:])(.+?)(?=^\\s*性格[：:]|\\Z)");
+    private static final Pattern STORY_PERSONALITY_PATTERN = Pattern.compile(
+            "(?ms)^\\s*(性格[：:])(.+?)(?=^\\s*(场景|描述|重要提示)[：:]|\\Z)");
 
     private static final Pattern BRACKET_FIELD_PATTERN = Pattern.compile("\\[([^:\\]：]+)[:：]([^\\]]+)]");
+    private static final Pattern CREATOR_TAG_PATTERN = Pattern.compile("<\\s*([^:>\\s]+)\\s*:");
+    private static final Pattern RUNTIME_MARKER_PATTERN = Pattern.compile(
+            "当前时间|系统时间|长期记忆|关键事实|日记书写时间|农历|城市|地点|天气|第\\s*\\d+\\s*天|\\d{4}年\\d{1,2}月\\d{1,2}日|\\d{1,2}:\\d{2}"
+    );
 
     static final class PersonaCard {
         final String rawJson;
@@ -501,6 +660,14 @@ final class PersonaSupport {
         }
 
         static PromptSections parse(String text) {
+            // v1.5.5+：PS-1 — 先按严格双换行 marker 解析；若失败，再用单换行容错路径重试，
+            // 应对前端在 system prompt 上做 trim/换行压缩后人设替换全失效的问题。
+            PromptSections strict = parseStrict(text);
+            if (strict.isValid()) return strict;
+            return parseTolerant(text);
+        }
+
+        private static PromptSections parseStrict(String text) {
             if (TextUtils.isEmpty(text)) {
                 return new PromptSections("", "", "", "", "", "", "", "", "");
             }
@@ -530,6 +697,60 @@ final class PersonaSupport {
 
             String introPrefix = normalized.substring(0, introSplit + 2);
             String description = normalized.substring(introSplit + 2, personalityStart);
+            String personalityBody = normalized.substring(personalityStart + personalityMarker.length(), scenarioStart);
+            String scenarioBody = normalized.substring(scenarioStart + scenarioMarker.length(), creatorStart);
+            String creatorBody = normalized.substring(creatorStart + creatorMarker.length());
+            return new PromptSections(
+                    introPrefix,
+                    description,
+                    personalityMarker,
+                    personalityBody,
+                    scenarioMarker,
+                    scenarioBody,
+                    creatorMarker,
+                    creatorBody,
+                    ""
+            );
+        }
+
+        /**
+         * v1.5.5+：PS-1 — 单换行容错路径。前端如果对 system prompt 做了 trim / 把 \n\n 压成 \n，
+         * 严格 parse 会因 introSplit 找不到 \n\n 而整体失败。这里用 \n 单换行 + `:` 半角冒号兜底，
+         * 让人设替换在被 trim 后仍能命中。intro 切分用 first \n（无更好的边界），
+         * 命中后 introPrefix 以 \n 而非 \n\n 结尾——重写后的 prompt 不再保留双换行视觉分隔，
+         * 但语义结构完整。
+         */
+        private static PromptSections parseTolerant(String text) {
+            if (TextUtils.isEmpty(text)) {
+                return new PromptSections("", "", "", "", "", "", "", "", "");
+            }
+            String normalized = text.replace("\r\n", "\n").replace('\r', '\n');
+            String personalityMarker = findMarker(normalized,
+                    "\n性格特征：\n", "\n你的性格特征：\n", "\n性格特征:\n", "\n你的性格特征:\n");
+            if (TextUtils.isEmpty(personalityMarker)) {
+                return new PromptSections("", "", "", "", "", "", "", "", "");
+            }
+            int personalityStart = normalized.indexOf(personalityMarker);
+            int introSplit = normalized.indexOf("\n");
+            if (introSplit < 0 || introSplit >= personalityStart) {
+                return new PromptSections("", "", "", "", "", "", "", "", "");
+            }
+            String scenarioMarker = findMarkerAfter(normalized, personalityStart + personalityMarker.length(),
+                    "\n场景设定：\n", "\n当前场景设定：\n", "\n场景设定:\n", "\n当前场景设定:\n");
+            if (TextUtils.isEmpty(scenarioMarker)) {
+                return new PromptSections("", "", "", "", "", "", "", "", "");
+            }
+            int scenarioStart = normalized.indexOf(scenarioMarker, personalityStart + personalityMarker.length());
+
+            String creatorMarker = findMarkerAfter(normalized, scenarioStart + scenarioMarker.length(),
+                    "\n重要提示：\n", "\n重要提示:\n");
+            if (TextUtils.isEmpty(creatorMarker)) {
+                return new PromptSections("", "", "", "", "", "", "", "", "");
+            }
+            int creatorStart = normalized.indexOf(creatorMarker, scenarioStart + scenarioMarker.length());
+
+            String introPrefix = normalized.substring(0, introSplit + 1);
+            String description = normalized.substring(introSplit + 1, personalityStart);
             String personalityBody = normalized.substring(personalityStart + personalityMarker.length(), scenarioStart);
             String scenarioBody = normalized.substring(scenarioStart + scenarioMarker.length(), creatorStart);
             String creatorBody = normalized.substring(creatorStart + creatorMarker.length());

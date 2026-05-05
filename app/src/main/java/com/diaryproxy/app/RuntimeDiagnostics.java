@@ -74,7 +74,11 @@ final class RuntimeDiagnostics {
                 builder.append("network=").append(transports.isEmpty() ? "other" : TextUtils.join("+", transports));
                 if (caps != null) {
                     builder.append(",validated=").append(caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED));
-                    builder.append(",notSuspended=").append(caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        builder.append(",notSuspended=").append(
+                                caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED)
+                        );
+                    }
                 }
                 builder.append(",metered=").append(manager.isActiveNetworkMetered());
                 if (link != null && !TextUtils.isEmpty(link.getInterfaceName())) {

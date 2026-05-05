@@ -46,6 +46,11 @@
         <item>sister-low</item>
         <item>sister-medium</item>
         <item>sister-high</item>
+        <item>sister-kemonomimi</item>
+        <item>sister-kemonomimi-cat</item>
+        <item>sister-tutor</item>
+        <item>sister-dilei</item>
+        <item>sister-kindergarten</item>
     </string-array>
 
     <string-array name="persona_tier_labels">
@@ -54,5 +59,10 @@
         <item>低好感（sister-low）</item>
         <item>中好感（sister-medium）</item>
         <item>高好感（sister-high）</item>
+        <item>伶鼬兽耳娘（sister-kemonomimi）</item>
+        <item>伶鼬兽耳娘·猫形（sister-kemonomimi-cat）</item>
+        <item>家庭教师（sister-tutor）</item>
+        <item>地雷系（sister-dilei）</item>
+        <item>幼儿园（sister-kindergarten）</item>
     </string-array>
 </resources>
